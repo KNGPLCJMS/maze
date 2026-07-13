@@ -4,10 +4,9 @@ const context = canvas.getContext("2d");
 const col = 30;
 const row =30;
 const size = 20;
-
+document.getElementById("generateButton").addEventListener("click", generateMaze);
 canvas.width=col*size;
 canvas.height = row*size;
-
 class Cell {
     constructor(x,y){
         this.x=x;
@@ -91,14 +90,24 @@ function getNeighbors(cell) {
     }
     return neighbors;
 }
-
+function generateMaze() {
+    grid = [];
+    for(let y=0; y<row; y++){
+        for(let x=0; x<col; x++){
+            grid.push(new Cell(x,y));
+        }
+    }
+    dfs(grid[0]);
+    drawGrid();
+}
 function removeWalls(current, next, wall, opposite) {
     current.walls[wall] = false;
     next.walls[opposite] = false;
 }
 
-function dfs(cell) {
+async function dfs(cell) {
     cell.visited = true;
+    drawGrid();
 
     let neighbors = getNeighbors(cell);
 
@@ -107,13 +116,22 @@ function dfs(cell) {
         let { cell: nextCell, wall, opposite } = neighbors[randomIndex];
 
         removeWalls(cell, nextCell, wall, opposite);
-        dfs(nextCell);
+        await sleep(20);
+        await dfs(nextCell);
 
         neighbors = getNeighbors(cell);
     }
 
-    cell.draw();
 
 }
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+function drawGrid() {
 
-dfs(grid[0]);
+    context.clearRect(0, 0, canvas.width, canvas.height);
+
+    for (let cell of grid) {
+        cell.draw();
+    }
+}
