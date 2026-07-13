@@ -90,14 +90,25 @@ function getNeighbors(cell) {
     }
     return neighbors;
 }
-function generateMaze() {
+async function generateMaze() {
     grid = [];
     for(let y=0; y<row; y++){
         for(let x=0; x<col; x++){
             grid.push(new Cell(x,y));
         }
     }
-    dfs(grid[0]);
+    let algorithm = document.getElementById("algoSelect").value;
+    if (algorithm === "DFS") {
+        await dfs(grid[0]);
+    } else if (algorithm === "Prim's") {
+        prim();
+    } else if (algorithm === "Wilson's") {
+        wilsons();
+    } else if (algorithm === "BinaryTree") {
+        binaryTree();
+    } else if (algorithm === "Kruskal's") {
+    kruskals();
+    }
     drawGrid();
 }
 function removeWalls(current, next, wall, opposite) {
@@ -134,4 +145,113 @@ function drawGrid() {
     for (let cell of grid) {
         cell.draw();
     }
+}
+function getAllNeighbors(cell) {
+    let neighbors = [];
+
+    const directions = [
+        {x:0, y:-1, wall:0, opposite:2}, // top
+        {x:1, y:0, wall:1, opposite:3},  // right
+        {x:0, y:1, wall:2, opposite:0},  // bottom
+        {x:-1,y:0, wall:3, opposite:1}   // left
+    ];
+
+    for (let dir of directions) {
+        let neighbor = grid[index(
+            cell.x + dir.x,
+            cell.y + dir.y
+        )];
+
+        if (neighbor) {
+            neighbors.push({
+                cell: neighbor,
+                wall: dir.wall,
+                opposite: dir.opposite
+            });
+        }
+    }
+
+    return neighbors;
+}
+
+
+function getVisitedNeighbors(cell) {
+    let neighbors = [];
+
+    const directions = [
+        {x:0, y:-1, wall:0, opposite:2},
+        {x:1, y:0, wall:1, opposite:3},
+        {x:0, y:1, wall:2, opposite:0},
+        {x:-1,y:0, wall:3, opposite:1}
+    ];
+
+    for (let dir of directions) {
+        let neighbor = grid[index(
+            cell.x + dir.x,
+            cell.y + dir.y
+        )];
+
+        if (neighbor && neighbor.visited) {
+            neighbors.push({
+                cell: neighbor,
+                wall: dir.wall,
+                opposite: dir.opposite
+            });
+        }
+    }
+
+    return neighbors;
+}
+
+async function prim() {
+    let start = grid[0];
+    start.visited = true;
+
+    let frontier = getAllNeighbors(start);
+
+    while (frontier.length > 0) {
+        // Pick random frontier cell
+        let randomIndex = Math.floor(Math.random() * frontier.length);
+        let current = frontier.splice(randomIndex, 1)[0];
+
+        let cell = current.cell;
+
+        let visitedNeighbors = getVisitedNeighbors(cell);
+
+        if (visitedNeighbors.length > 0) {
+            let randomNeighbor = visitedNeighbors[
+                Math.floor(Math.random() * visitedNeighbors.length)
+            ];
+
+            removeWalls(
+                cell,
+                randomNeighbor.cell,
+                randomNeighbor.wall,
+                randomNeighbor.opposite
+            );
+
+            cell.visited = true;
+
+            drawGrid();
+            await sleep(20);
+
+            let newNeighbors = getAllNeighbors(cell);
+
+            for (let neighbor of newNeighbors) {
+                if (!neighbor.cell.visited && 
+                !frontier.some(f => f.cell === neighbor.cell)) {
+                frontier.push(neighbor);
+            }
+        }
+        }
+    }
+
+    drawGrid();
+}
+function wilsons() {
+    // Implement Wilson's algorithm for maze generation here
+}
+
+function binaryTree() {
+    // Implement Binary Tree algorithm for maze generation here
 }
