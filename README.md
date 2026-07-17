@@ -4,6 +4,11 @@ A simple Website that creates perfect mazes using one of 5 algorithms.
 
 Try it here: https://kngplcjms.github.io/maze/
 
-Allows users to select algorithm
-Allows users to change generation speed
-Includes Kruskal's, Prim's, DFS, BT, and Wilson's
+<ol>
+  <li>Allows users to select algorithm
+</li>
+  <li>Includes Kruskal's, Prim's, DFS, BT, and Wilson's
+</li>
+  <li>Allows users to change generation speed
+</li>
+</ol>
